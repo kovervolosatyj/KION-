@@ -544,7 +544,7 @@ class Game:
             else:
                 pygame.draw.circle(surf, mix(HERO_COL[hid], BG, 0.7), c, rad, 2)
             x += int(26 * u)
-        # кнопка «заново»
+        
         r = pygame.Rect(0, 0, int(40 * u), int(40 * u))
         r.center = (W - pad - int(20 * u), int(32 * u))
         pygame.draw.rect(surf, CREAM, r, 2, border_radius=int(12 * u))
@@ -725,7 +725,7 @@ class Game:
     def draw_popup(self, surf, u):
         W, H = surf.get_size()
 
-        # Затемнение игрового поля
+        
         dim = pygame.Surface((W, H), pygame.SRCALPHA)
         dim.fill((0, 0, 0, 150))
         surf.blit(dim, (0, 0))
@@ -793,7 +793,7 @@ class Game:
             )
             y += line_h
 
-        # Подсказка всегда находится внизу подложки
+        
         hint_font = font(max(15, int(12 * u)))
         draw_text(
             panel,
@@ -844,7 +844,7 @@ async def main():
     pygame.display.set_caption("Амипат — Песни земли")
     screen = pygame.display.set_mode((460, 800), pygame.RESIZABLE)
 
-    # Заставка
+    
     splash_path = os.path.join(PUBLIC_DIR, "kion_desktop.png")
     splash = pygame.image.load(splash_path).convert()
     clock_splash = pygame.time.Clock()
