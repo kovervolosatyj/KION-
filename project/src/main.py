@@ -1,5 +1,5 @@
 
-import asyncio          # цикл async — чтобы игру можно было собрать через pygbag (веб/мобильный браузер)
+import asyncio
 import math
 import os
 import sys
@@ -42,8 +42,7 @@ FONT_PATH = next(
 
 print("GRECHA path:", FONT_PATH)
 
-# Названия картинок в public. Если у тебя файлы названы иначе — меняй только эти словари.
-# tile_start_(2).png / tile_end_(2).png остаются красными тайлами обучения.
+
 HERO_START_TILES = {
     "P": "tile_start_purple.png",  # фиолетовый
     "R": "tile_start (2).png",     # красный
@@ -56,7 +55,7 @@ HERO_END_TILES = {
     "B": "tile_end_blue.png",
     "Y": "tile_end_green.png",
 }
-# Миниатюры предметов: используются и на поле, и в полоске собранных предметов.
+
 ITEM_IMAGES = {
     "mirror": "mirror.png",
     "horse": "horse.png",
@@ -73,11 +72,11 @@ TILE_EDGE = (92, 92, 104)
 CREAM = (241, 236, 226)
 INK = (14, 14, 16)
 GREY = (120, 118, 126)
-HERO_COL = {          # у каждого героя свой цвет
-    "P": (139, 92, 255),    # фиолетовый
-    "R": (220, 55, 65),     # красный — герой, который остаётся в конце
-    "B": (79, 198, 235),    # голубой
-    "Y": (104, 211, 142),   # зелёный — Амипат
+HERO_COL = {
+    "P": (139, 92, 255),
+    "R": (220, 55, 65),
+    "B": (79, 198, 235),
+    "Y": (104, 211, 142),
 }
 EXIT_COL = HERO_COL["Y"]
 
@@ -97,9 +96,9 @@ START_STORY = {
     3: ["Спешили друзья к Амипат, да знали, что не каждого она выберет."],
 }
 ITEM_TEXT = {
-    "B": "Юноша нашел зеркало, в котором всегда видно любимую.",
-    "P": "Юноша нашел коня, который быстрее ветра домчит до любимой.",
-    "R": "Юноша нашел яблоко, которое может дарить жизнь.",
+    "B": "Зеркало, в котором всегда видно любимую.",
+    "P": "Конь, который быстрее ветра домчит до любимой.",
+    "R": "Яблоко, которое может дарить жизнь.",
 }
 END_STORY = [
     "Откусив яблоко, Амипат ожила. Мудрец в ауле рассудил, что она должна достаться тому, кто принес яблоко. "
@@ -129,7 +128,7 @@ _original_assets = {}
 
 
 def original_asset(name):
-    """Загружает картинку без масштабирования и кэширует её."""
+
     if name not in _original_assets:
         path = os.path.join(PUBLIC_DIR, name)
         if not os.path.exists(path):
@@ -143,7 +142,7 @@ def original_asset(name):
 
 
 def draw_cover_background(surf, name):
-    """Заполняет экран фоном без растягивания: лишнее обрезается по краям."""
+
     image = original_asset(name)
     if image is None:
         return False
@@ -253,7 +252,7 @@ _mandalas = {}
 
 
 def mandala(radius):
-    """Орнамент-«солнце» с постера (рисуется один раз и кэшируется)."""
+
     radius = int(radius)
     if radius not in _mandalas:
         s = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
@@ -273,7 +272,7 @@ def mandala(radius):
 
 
 def draw_icon(surf, kind, c, s, color):
-    """Простые значки подарков: зеркало, конь (подкова), яблоко."""
+
     x, y = c
     w = max(2, int(s * 0.09))
     if kind == "mirror":
@@ -299,7 +298,7 @@ class Geom:
         return (self.ox + (cell[1] + 0.5) * self.pitch, self.oy + (cell[0] + 0.5) * self.pitch)
 
 
-# ============================ ИГРА ===========================================
+
 class Game:
     def __init__(self):
         self.level_idx = 0
@@ -319,7 +318,7 @@ class Game:
         self.load_level(0)
         self.start_story(0)
 
-    # --- уровни ------------------------------------------------------------
+
     @property
     def sets(self):
         return SIMPLE
@@ -345,7 +344,7 @@ class Game:
             self.seen_start.add(idx)
             self.show(START_STORY[idx])
 
-    # --- окошки с текстом --------------------------------------------------
+
     def show(self, texts, then=None):
         self.popups = list(texts)
         self.popup_t = 0.0
@@ -360,7 +359,7 @@ class Game:
             cb, self.then = self.then, None
             cb()
 
-    # --- переходы ----------------------------------------------------------
+
     def level_complete(self):
         if self.level_idx == len(self.sets) - 1:
             self.show(END_STORY, then=lambda: setattr(self, "final", True))
@@ -373,7 +372,7 @@ class Game:
         self.draw_scene(new)
         self.trans = {"old": old, "new": new, "t": 0.0}
 
-    # --- события -----------------------------------------------------------
+
     def handle(self, e):
         if e.type == pygame.QUIT:
             pygame.quit()
@@ -383,8 +382,7 @@ class Game:
                 self.close_popup()
             elif e.key == pygame.K_r and not self.popups and not self.trans:
                 self.restart()
-        # Касания в SDL2 приходят как эмулированные события мыши — отдельно FINGER* не обрабатываем,
-        # иначе нажатия задвоятся.
+
         elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
             self.on_press(e.pos)
         elif e.type == pygame.MOUSEBUTTONUP and e.button == 1:
@@ -438,7 +436,7 @@ class Game:
             elif ev == "win":
                 self.win_timer = 0.7
 
-    # --- обновление --------------------------------------------------------
+
     def update(self, dt):
         if self.popups:
             self.popup_t += dt
@@ -461,7 +459,7 @@ class Game:
         return (self.level_idx in DEMO_LEVELS and self.solution and not self.popups and not self.trans
                 and not self.final and not self.board.started and self.win_timer is None)
 
-    # --- геометрия ---------------------------------------------------------
+
     @staticmethod
     def unit(size):
         return max(0.7, min(size[0] / 480, size[1] / 800))
@@ -485,7 +483,7 @@ class Game:
             return None
         return (ri, ci)
 
-    # --- отрисовка ---------------------------------------------------------
+
     def draw(self, screen):
         W, H = screen.get_size()
         if self.trans:
@@ -507,7 +505,7 @@ class Game:
     def draw_scene(self, surf):
         W, H = surf.get_size()
         u = self.unit((W, H))
-        # Для вертикального окна берём мобильный фон, для горизонтального — desktop.
+
         bg_name = BACKGROUND_MOBILE if H > W else BACKGROUND_DESKTOP
         has_bg = draw_cover_background(surf, bg_name)
         if not has_bg and bg_name != BACKGROUND_DESKTOP:
@@ -519,7 +517,7 @@ class Game:
         else:
             surf.fill(BG)
             surf.blit(mandala(min(W * 0.55, 260 * u)), (W / 2 - min(W * 0.55, 260 * u), -min(W * 0.55, 260 * u) * 0.9))
-        # полосы внизу — отсылка к постеру
+
         bar_h = int(H * 0.035)
         x, i = 0, 0
         while x < W:
@@ -534,7 +532,7 @@ class Game:
         W, H = surf.get_size()
         pad = int(18 * u)
         draw_text(surf, LEVEL_TITLES[self.level_idx], font(int(28 * u), True), CREAM, midleft=(pad, int(32 * u)))
-        # герои уровня (оставшиеся ярко, «оставленные позади» тускло)
+
         ids = ["Y"] if self.level_idx == 0 else ["P", "R", "B"]
         present = {h.id for h in self.level.heroes}
         rad = int(9 * u)
@@ -556,7 +554,7 @@ class Game:
         pygame.draw.polygon(surf, CREAM, [(ax - 5 * u, ay - 4 * u), (ax + 5 * u, ay - 4 * u), (ax + 1 * u, ay + 5 * u)])
         self.ui["restart"] = r
 
-        # Миниатюры подарков, собранных на первом игровом уровне (Уровень 1).
+
         if self.level_idx == 1:
             collected = [(hid, self.board.hero[hid].item_kind)
                          for hid in ("P", "R", "B")
@@ -589,8 +587,7 @@ class Game:
             hid = occ.get(cell)
             if cell in starts:
                 hero = starts[cell]
-                # Обучение: оставляем имеющиеся красные тайлы. На остальных уровнях
-                # берём отдельную картинку для цвета каждого героя.
+
                 if self.level_idx == 0:
                     image_name = "tile_start_green.png"
                     if not draw_asset(surf, image_name, rc):
@@ -616,7 +613,7 @@ class Game:
                 if not draw_asset(surf, name, rc):
                     pygame.draw.rect(surf, TILE, rc, border_radius=rad)
 
-                # Мягкий цветной тинт с размытыми краями
+
                 pad = max(2, int(pitch * 0.005))
                 overlay_size = (rc.width + pad * 2, rc.height + pad * 2)
 
@@ -630,7 +627,7 @@ class Game:
                     border_radius=rad
                 )
 
-                # Смягчаем границы уменьшением и увеличением слоя
+
                 small = (
                     max(1, overlay_size[0] // 5),
                     max(1, overlay_size[1] // 5)
@@ -645,7 +642,7 @@ class Game:
                     pygame.draw.rect(surf, TILE, rc, border_radius=rad)
                     pygame.draw.rect(surf, TILE_EDGE, rc, 2, border_radius=rad)
 
-        # Все следы рисуются одной функцией: белая обводка и тёмный градиент цвета героя.
+
         for h in lv.heroes:
             pts = [g.center(c) for c in bd.paths[h.id]]
             self.draw_trail(surf, pts, HERO_COL[h.id], pitch)
@@ -655,7 +652,7 @@ class Game:
                 pygame.draw.circle(surf, CREAM, (int(hx), int(hy)), int(lw * 0.78))
                 pygame.draw.circle(surf, mix(HERO_COL[h.id], INK, 0.62), (int(hx), int(hy)), int(lw * 0.57))
 
-        # предметы
+
         for cell, (hid, kind) in lv.items.items():
             cx, cy = g.center(cell)
             col = HERO_COL[hid]
@@ -675,7 +672,7 @@ class Game:
 
     @staticmethod
     def draw_trail(surf, pts, hero_color, pitch, alpha=255):
-        """Единый рендер следа: белая внешняя обводка и тёмный градиент к хвосту."""
+
         if len(pts) < 2:
             return
         layer = surf
@@ -685,7 +682,7 @@ class Game:
         outline = width + max(2, int(pitch * 0.045))
         white = (255, 255, 255, alpha) if layer is not surf else CREAM
         pygame.draw.lines(layer, white, False, pts, outline)
-        # Рисуем каждый сегмент отдельно, постепенно затемняя цвет по длине следа.
+
         segments = len(pts) - 1
         for i in range(segments):
             t = (i + 1) / max(1, segments)
@@ -697,7 +694,7 @@ class Game:
             surf.blit(layer, (0, 0))
 
     def draw_demo(self, surf, g, u):
-        """Летающий «пальчик»: показывает маршрут, держит линию, гасит её и повторяет."""
+
         hid = self.level.heroes[0].id
         path = self.solution[hid]
         pts = [g.center(c) for c in path]
@@ -735,11 +732,11 @@ class Game:
 
         text = self.popups[0]
 
-        # Фиксированный размер подложки, независимо от длины текста
+
         pw = min(int(W * 0.92), int(620 * u))
         ph = min(int(H * 0.60), int(390 * u))
 
-        # Картинка загружается и масштабируется через кэш asset()
+
         popup_bg = asset(POPUP_IMAGE, (pw, ph))
 
         panel = pygame.Surface((pw, ph), pygame.SRCALPHA)
@@ -759,7 +756,7 @@ class Game:
                 border_radius=int(14 * u)
             )
 
-        # Размер шрифта подбирается так, чтобы текст помещался
+
         pad_x = int(pw * 0.13)
         text_top = int(ph * 0.16)
         text_bottom = int(ph * 0.22)
@@ -782,7 +779,7 @@ class Game:
         lines = wrap(text, fnt, available_w)
         line_h = fnt.get_linesize() + max(2, int(3 * u))
 
-        # Центрируем текст и по горизонтали, и по вертикали
+
         total_h = line_h * len(lines)
         y = text_top + (available_h - total_h) // 2
 
@@ -806,7 +803,7 @@ class Game:
             center=(pw // 2, ph - int(120 * u))
         )
 
-        # Плавное появление окна
+
         e = ease(self.popup_t / 0.25)
         panel.set_alpha(int(255 * e))
 
@@ -826,7 +823,7 @@ class Game:
         self.ui["final"] = r
 
 
-# ============================ ЗАПУСК =========================================
+
 async def main():
     pygame.init()
     pygame.mixer.music.load(
@@ -834,8 +831,8 @@ async def main():
     )
     pygame.mixer.music.set_volume(0.3)
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(0.3)  # Громкость от 0.0 до 1.0
-    pygame.mixer.music.play(-1)  # Зацикленное воспроизведение
+    pygame.mixer.music.set_volume(0.3) 
+    pygame.mixer.music.play(-1) 
     if os.path.exists(MUSIC_PATH):
         try:
             pygame.mixer.init()
@@ -879,7 +876,7 @@ async def main():
 
     splash.set_alpha(255)
 
-    # Дальше должен идти существующий код запуска игры:
+
     clock = pygame.time.Clock()
     game = Game()
 
