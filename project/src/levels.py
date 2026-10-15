@@ -1,11 +1,3 @@
-"""Уровни и логика игры (без pygame) — можно тестировать отдельно.
-
-Легенда карты:
-  .  обычный тайл            (пробел) — пустое место
-  P R B Y   старт героя (P - фиолетовый, R - голубой, B - зелёный, Y - Амипат)
-  p r b g   финиш этого героя (g - «выход» Амипат / зелёная клетка)
-  m h a     предметы: m - зеркало (синий), h - конь/подкова (фиолетовый), a - яблоко (красный)
-"""
 from dataclasses import dataclass, field
 
 ITEM_OWNER = {"m": "B", "h": "P", "a": "R"}
@@ -56,14 +48,14 @@ SIMPLE = [
     L4,
 ]
 
-# ----------------------------------------------------------------------------
+
 @dataclass
 class Hero:
     id: str
     start: tuple
     end: tuple = None
-    item: tuple = None          # клетка с предметом (или None)
-    item_kind: str = None       # "mirror" / "horse" / "apple"
+    item: tuple = None
+    item_kind: str = None
 
 
 @dataclass
@@ -72,7 +64,7 @@ class Level:
     heroes: list
     rows: int
     cols: int
-    items: dict = field(default_factory=dict)   # клетка -> (hero_id, kind)
+    items: dict = field(default_factory=dict)
 
 
 def parse_level(rows):
@@ -106,7 +98,7 @@ def adjacent(a, b):
 
 
 class Board:
-    """Состояние прохождения одного уровня."""
+
 
     def __init__(self, level):
         self.level = level
@@ -118,7 +110,7 @@ class Board:
         self.active = None
         self.started = False
 
-    # --- запросы -----------------------------------------------------------
+
     def owner_of(self, cell):
         for hid, p in self.paths.items():
             if cell in p:
@@ -142,17 +134,17 @@ class Board:
     def can_enter(self, hid, cell):
         if cell not in self.level.tiles or self.owner_of(cell):
             return False
-        for h in self.level.heroes:                      # чужой финиш закрыт
+        for h in self.level.heroes:    
             if h.id != hid and h.end == cell:
                 return False
-        it = self.level.items.get(cell)                   # чужой предмет не годится
+        it = self.level.items.get(cell)  
         if it and it[0] != hid:
             return False
         return True
 
-    # --- ввод --------------------------------------------------------------
+
     def press(self, cell):
-        """Нажатие на клетку: выбираем линию героя (обрезаем её до этой клетки)."""
+
         hid = self.owner_of(cell)
         if hid is None:
             self.active = None
@@ -167,7 +159,7 @@ class Board:
         self.active = None
 
     def step(self, cell):
-        """Перетаскивание через клетку. Возвращает список событий."""
+
         events = []
         hid = self.active
         if hid is None:
@@ -175,7 +167,7 @@ class Board:
         p = self.paths[hid]
         if cell == p[-1]:
             return events
-        if cell in p:                                     # возврат по своей линии
+        if cell in p:                
             del p[p.index(cell) + 1:]
             return events
         if not adjacent(p[-1], cell) or self.hero_done(hid):
@@ -193,10 +185,9 @@ class Board:
         return events
 
 
-# ----------------------------------------------------------------------------
+
 def solve(level, limit=200000):
-    """Поиск решения (для проверки уровней и подсказки-«пальчика»).
-    Возвращает {hero_id: [клетки]} или None."""
+
     heroes = level.heroes
     occ = {h.start for h in heroes}
     paths = {h.id: [h.start] for h in heroes}
